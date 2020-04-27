@@ -116,5 +116,59 @@ inline Query operator~(const Query &operand)
     return shared_ptr<Query_base> (new NotQuery(operand));
 }
 
+//===========================================
+//Function:与或的基类
+//
+//===========================================
+class BinaryQuery: public Query_base
+{
+public:
+
+protected:
+        BinaryQuery(const Query &l, const Query &r, const Query &r, string s): lhs(l), rhs(r), opSym(s) { }
+        string rep() const
+        {
+                return "(" + lhs.rep() + " " + opSym + " " + rhs.rep() + ")";
+        }
+        Query lhs, rhs;
+        string opSym;
+private:
+
+};
+
+class AndQuery: public BinaryQuery
+{
+        friend Query operator &(const Query&, const Query&);
+public:
+
+protected:
+
+private:
+        AndQuery(const Query &left, const Query &right): BinaryQuery(left, right, "&"){ }
+        QueryResult eval(const TextQuery&)const;
+};
+inline Query operator &(const Query &lhs, const Query &rhs)
+{
+        return  shared_ptr<Query_base>( new AndQuery(lhs, rhs) );
+}
+
+
+class OrQuery: public BinaryQuery
+{
+        friend Query operator|(const Query &, const Query &);
+public:
+
+protected:
+
+private:
+        OrQuery(const Query &left, const Query &right): BinaryQuery(left, right, "|"){ }
+        QueryResult eval(const TextQuery &) const;
+};
+inline Query operator |(const Query &lhs, const Query &rhs)
+{
+        return  shared_ptr<Query_base>( new OrQuery(lhs, rhs) );
+}
+
+
 
 
