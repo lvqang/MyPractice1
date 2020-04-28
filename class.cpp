@@ -1,5 +1,53 @@
 #include"class.h"
 
+//--------------------------------------TextQuery---------------------
+        TextQuery:: TextQuery(ifstream &is): file(new vector<string>)
+        {
+                string text;
+                while( getline(is, text) )//按行读入文本
+                {
+                        file->push_back(text);
+                        int no = file->size()-1;//行号
+                        istringstream line(text);//字符串流绑定每一行
+                        string word;
+                        while( line>>word )
+                        {
+                                auto &lines = wm[word];
+                                if( ! lines )
+                                {
+                                        lines.reset( new set<line_no> );//此处尝试不用reset函数
+                                }
+                                lines->insert(no);
+                        }
+                }
+        }
+
+
+QueryResult TextQuery::  query(const string &str) const
+{
+       // shared_ptr<set<line_no>> lines = wm[str];//使用下标运算会导致map创建新的成员
+        shared_ptr< vector<string> > files = file;
+        if(  wm.find(str) == wm.end() )
+        {
+                static shared_ptr< set<line_no> > liness = new set<line_no>;//静态变量，生存周期最长，防止指针无效
+                return QueryResult(str, liness, files);
+        }
+        else  return QueryResult(str, wm[str], files);
+}
+//----------------------------------TextQuery end---------------
+
+
+
+
+
+
+
+
+
+
+
+
+
 QueryResult OrQuery::eval(const TextQuery &text) const
 {
         auto right = rhs.eval(text);
