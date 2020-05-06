@@ -34,26 +34,19 @@ QueryResult TextQuery::  query(const string &str) const
         }
         else  return QueryResult(str, wm[str], files);
 }
-//----------------------------------TextQuery end---------------
+//----------------------------------TextQuery end--------------
 
 
 
 
-
-
-
-
-
-
-
-
-
+//--------------------------------------Query_base--------------------
 QueryResult OrQuery::eval(const TextQuery &text) const
 {
         auto right = rhs.eval(text);
         auto left   = lhs.eval(text);
 
         auto ret_lines = make_shared< set<line_no> >( left.begin(), left.end() );
+
         ret_lines->insert( right.begin(), right.end() );
 
         return QueryResult( rep(), ret_lines, left.get_file() );
@@ -77,11 +70,11 @@ QueryResult NotQuery::eval(const TextQuery &text) const
 
         auto ret_lines = make_shared< set<line_no> >( );
 
-        auto beg = result.begin(), end = result.end();
+        auto beg = result.begin(), end = result.end();//有误，取其中set尝试
 
-        auto sz = result.get_file()->size();
+        auto sz = result.get_file()->size();//计算得到所有行的个数？
 
-        for(size_t n = 0; n!=sz; ++n)
+        for(size_t n = 0; n!=sz; ++n)//改变方法，原程序可能不正确
         {
                 if(beg == end || *beg != n)
                         ret_lines->insert(n);
