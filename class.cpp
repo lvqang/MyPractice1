@@ -1,6 +1,5 @@
 #include"class.h"
 
-<<<<<<< HEAD
 //---------------------QueryResult-------------------
     hared_ptr< vector<string> > QueryResult::get_file()
     {
@@ -8,8 +7,6 @@
     }
 //-------------------QueryResult end-----------------
 
-=======
->>>>>>> 2748f1be74ea7c31ef000fdddf081cfad0793021
 //--------------------------------------TextQuery---------------------
         TextQuery:: TextQuery(ifstream &is): file(new vector<string>)
         {
@@ -76,7 +73,6 @@ QueryResult AndQuery::eval(const TextQuery &text) const
 
 QueryResult NotQuery::eval(const TextQuery &text) const
 {
-<<<<<<< HEAD
     auto result = query.eval(text);//WordQuery's eval
 
     auto ret_lines = make_shared< set<line_no> >( );
@@ -97,24 +93,6 @@ QueryResult NotQuery::eval(const TextQuery &text) const
             ++beg;
     }
     return QueryResult( rep(), ret_lines, left );
-=======
-        auto result = query.eval(text);
-
-        auto ret_lines = make_shared< set<line_no> >( );
-
-        auto beg = result.begin(), end = result.end();//有误，取其中set尝试
-
-        auto sz = result.get_file()->size();//计算得到所有行的个数？
-
-        for(size_t n = 0; n!=sz; ++n)//改变方法，原程序可能不正确
-        {
-                if(beg == end || *beg != n)
-                        ret_lines->insert(n);
-                else if(beg != end)
-                        ++beg;
-        }
-        return QueryResult( rep(), ret_lines, left.get_file() );
->>>>>>> 2748f1be74ea7c31ef000fdddf081cfad0793021
 }
 
 

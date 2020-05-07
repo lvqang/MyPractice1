@@ -11,7 +11,6 @@ using namespace std;
 //-------------------------------QueryResult-----------------------------------------
 class QueryResult
 {
-<<<<<<< HEAD
     friend ostream& print(ostream&, const QueryResult&);
 public:
     QueryResult(string s, shared_ptr< set<TextQuery::line_no> > p, shared_ptr< vector<string> > f):sought(s), lines(p), file(f) { }
@@ -22,17 +21,6 @@ private:
     string sought;
     shared_ptr< set<TextQuery::line_no> > lines;
     shared_ptr< vector<string> > file;
-=======
-        friend ostream& print(ostream&, const QueryResult&);
-public:
-        QueryResult(string s, shared_ptr< set<TextQuery::line_no> > p, shared_ptr< vector<string> > f):sought(s), lines(p), file(f) { }
-protected:
-
-private:
-        string sought;
-        shared_ptr< set<TextQuery::line_no> > lines;
-        shared_ptr< vector<string> > file;
->>>>>>> 2748f1be74ea7c31ef000fdddf081cfad0793021
 };
 
 
