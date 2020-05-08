@@ -20,9 +20,18 @@ protected:
 private:
     string sought;
     shared_ptr< set<TextQuery::line_no> > lines;
-    shared_ptr< vector<string> > file;
+    shared_ptr< vector<string> > file;//保存整个文本，根据lines提取所需的文本
 };
 
+ostream& print(ostream& os, const QueryResult& qr)
+{
+        os<<qr.sought<<" occurs "<<qr.lines->size()<<" "<<(qr.lines->size()>1) ? "times" : "time"<<endl;
+        for( auto nu  : *(qr.lines) )
+        {
+                os<<"\t(line"<<nu+1<<")"<<( *(qr.file) )[nu]<<endl;
+        }
+        return os;
+}
 
 //-------------------------------TextQuery-----------------------------------------
 class TextQuery
@@ -34,7 +43,7 @@ public:
 protected:
 
 private:
-        shared_ptr< vector<string> > file;
+        shared_ptr< vector<string> > file;//整个文本
         map< string, shared_ptr< set<line_no> > > wm;
 };
 
@@ -96,16 +105,16 @@ public:
 protected:
 
 private:
-        WordQuery(const string &s):query_word(s) {}//creat function
-        QueryResult eval(const TextQuery &t) const
-        {
-                return t.query(query_word);
+    WordQuery(const string &s):query_word(s) {}//creat function
+    QueryResult eval(const TextQuery &t) const
+	{
+		return t.query(query_word);
         }
-        string rep() const
+	string rep() const
         {
-                return query_word;
+		return query_word;
         }
-        string query_word;
+	string query_word;
 };
 
 inline Query::Query(const string &s):q(new WordQuery(s)){}
@@ -144,13 +153,13 @@ class BinaryQuery: public Query_base
 public:
 
 protected:
-        BinaryQuery(const Query &l, const Query &r, string s): lhs(l), rhs(r), opSym(s) { }
-        string rep() const
-        {
-                return "(" + lhs.rep() + " " + opSym + " " + rhs.rep() + ")";
-        }
-        Query lhs, rhs;
-        string opSym;
+	BinaryQuery(const Query &l, const Query &r, string s): lhs(l), rhs(r), opSym(s) { }
+	string rep() const
+	{
+		return "(" + lhs.rep() + " " + opSym + " " + rhs.rep() + ")";
+	}
+    Query lhs, rhs;
+    string opSym;
 private:
 
 };
@@ -158,35 +167,35 @@ private:
 //-------------------------------AndQuery-----------------------------------------
 class AndQuery: public BinaryQuery
 {
-        friend Query operator &(const Query&, const Query&);
+    friend Query operator &(const Query&, const Query&);
 public:
 
 protected:
 
 private:
-        AndQuery(const Query &left, const Query &right): BinaryQuery(left, right, "&"){ }
-        QueryResult eval(const TextQuery&)const;
+    AndQuery(const Query &left, const Query &right): BinaryQuery(left, right, "&"){ }
+    QueryResult eval(const TextQuery&)const;
 };
 inline Query operator &(const Query &lhs, const Query &rhs)
 {
-        return  shared_ptr<Query_base>( new AndQuery(lhs, rhs) );
+    return  shared_ptr<Query_base>( new AndQuery(lhs, rhs) );
 }
 
 //-------------------------------OrQuery-----------------------------------------
 class OrQuery: public BinaryQuery
 {
-        friend Query operator|(const Query &, const Query &);
+    friend Query operator|(const Query &, const Query &);
 public:
 
 protected:
 
 private:
-        OrQuery(const Query &left, const Query &right): BinaryQuery(left, right, "|"){ }
-        QueryResult eval(const TextQuery &) const;
+    OrQuery(const Query &left, const Query &right): BinaryQuery(left, right, "|"){ }
+    QueryResult eval(const TextQuery &) const;
 };
 inline Query operator |(const Query &lhs, const Query &rhs)
 {
-        return  shared_ptr<Query_base>( new OrQuery(lhs, rhs) );
+    return  shared_ptr<Query_base>( new OrQuery(lhs, rhs) );
 }
 
 

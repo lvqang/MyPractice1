@@ -52,9 +52,9 @@ QueryResult OrQuery::eval(const TextQuery &text) const
         auto right = rhs.eval(text);
         auto left   = lhs.eval(text);
 
-        auto ret_lines = make_shared< set<line_no> >( left.begin(), left.end() );
+        auto ret_lines = make_shared< set<line_no> >( left.lines->begin(), left.lines->end() );
 
-        ret_lines->insert( right.begin(), right.end() );
+        ret_lines->insert( right.lines->begin(), right.lines->end() );
 
         return QueryResult( rep(), ret_lines, left.get_file() );
 }
@@ -62,21 +62,25 @@ QueryResult OrQuery::eval(const TextQuery &text) const
 
 QueryResult AndQuery::eval(const TextQuery &text) const
 {
-        auto right = rhs.eval(text);
-        auto left   = lhs.eval(text);
+    auto right = rhs.eval(text);//rhs是protected，派生类可以访问
+    auto left   = lhs.eval(text);
 
-        auto ret_lines = make_shared< set<line_no> >( );
-        set_intersection( left.begin(), left.end(), right.begin(), right.end(), inserter( *ret_lines, ret_lines->begin() ) );
+    auto ret_lines = make_shared< set<line_no> >( );
+    set_intersection( left.lines->begin(), left.lines->end(), right.lines->begin(), right.lines->end(), inserter( *ret_lines, ret_lines->begin() ) );//容器set的函数，求交集
 
-        return QueryResult( rep(), ret_lines, left.get_file() );
+
+    return QueryResult( rep(), ret_lines, left.get_file() );
 }
+
+
+
 
 QueryResult NotQuery::eval(const TextQuery &text) const
 {
     auto result = query.eval(text);//WordQuery's eval
 
     auto ret_lines = make_shared< set<line_no> >( );
-    auto left = make_shared< vector<string> >( );//creat string
+    //auto left = make_shared< vector<string> >( );//creat string
 
     auto beg = result.lines->begin(), end = result.lines->end();//取其中set尝试
 
@@ -87,12 +91,11 @@ QueryResult NotQuery::eval(const TextQuery &text) const
         if(beg == end || *beg != n)
         {
             ret_lines->insert(n);
-            left->push_back(*(text.file)[n]);
         }
         else if(beg != end)
             ++beg;
     }
-    return QueryResult( rep(), ret_lines, left );
+    return QueryResult( rep(), ret_lines, result.get_file() );
 }
 
 
