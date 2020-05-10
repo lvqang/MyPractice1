@@ -6,80 +6,95 @@
 #include<sstream>
 #include<set>
 #include<map>
+#include<algorithm>//set_intersection head file
 using namespace std;
+
+//-------------------------------TextQuery-----------------------------------------
+class QueryResult;
+class TextQuery
+{
+public:
+    using line_no = vector<string>::size_type;
+    TextQuery(ifstream&);
+    QueryResult query(const string&) const;
+protected:
+
+private:
+    shared_ptr< vector<string> > file;//整个文本
+    map< string, shared_ptr< set<line_no> > > wm;
+};
+
 
 //-------------------------------QueryResult-----------------------------------------
 class QueryResult
 {
-    friend ostream& print(ostream&, const QueryResult&);
+    friend ostream& printqr(ostream&, const QueryResult&);
 public:
     QueryResult(string s, shared_ptr< set<TextQuery::line_no> > p, shared_ptr< vector<string> > f):sought(s), lines(p), file(f) { }
     shared_ptr< vector<string> > get_file();//return shared_ptr<vector>
+    const shared_ptr< set<TextQuery::line_no> > &get_lines()
+    {
+        return lines;
+    }
 protected:
 
 private:
     string sought;
     shared_ptr< set<TextQuery::line_no> > lines;
-    shared_ptr< vector<string> > file;
+    shared_ptr< vector<string> > file;//保存整个文本，根据lines提取所需的文本
 };
 
-
-//-------------------------------TextQuery-----------------------------------------
-class TextQuery
+ostream& printqr(ostream& os, const QueryResult& qr)
 {
-public:
-        using line_no = vector<string>::size_type;
-        TextQuery(ifstream&);
-        QueryResult query(const string&) const;
-protected:
+    os<<qr.sought<<" occurs "<<qr.lines->size()<<" "<<((qr.lines->size())>1 ? "times" : "time")<<endl;
+    for( auto nu  : *(qr.lines) )
+    {
+        os<<"\t(line"<<nu+1<<")"<<(*(qr.file))[nu]<<endl;
+    }
+    return os;
+}
 
-private:
-        shared_ptr< vector<string> > file;
-        map< string, shared_ptr< set<line_no> > > wm;
-};
-
-
-//-------------------------------Query-----------------------------------------
-class Query_base;
-class Query                               //作为接口类
-{
-        friend Query operator~(const Query&);
-        friend Query operator&(const Query&, const Query&);
-        friend Query operator|(const Query&, const Query&);
-public:
-        Query(const string&);
-        QueryResult eval(const TextQuery&t) const
-        {
-                return q->eval(t);
-        }
-        string rep() const
-        {
-                return q->rep();
-        }
-        ostream& operator<<(ostream &os, const Query &query)
-        {
-                return os << query.rep();
-        }
-   // shared_ptr< vector<string> > get_file();
-protected:
-
-private:
-        Query(shared_ptr<Query_base> query): q(query) {}
-        shared_ptr<Query_base> q;
-};
 
 //-------------------------------Query_base-----------------------------------------
 class Query_base//
 {
-        friend class Query;
+    friend class Query;
 public:
 
 protected:
-        using line_no = TextQuery::line_no;
-        virtual ~Query_base() = default;
+    using line_no = TextQuery::line_no;
+    virtual ~Query_base() = default;
 private:
-        virtual QueryResult eval(const TextQuery&) const=0;//调用查询函数
-        virtual string rep() const = 0;//返回查询关键词
+    virtual QueryResult eval(const TextQuery&) const=0;//调用查询函数
+    virtual string rep() const = 0;//返回查询关键词
+};
+//-------------------------------Query-----------------------------------------
+
+class Query                               //作为接口类
+{
+    friend Query operator~(const Query&);
+    friend Query operator&(const Query&, const Query&);
+    friend Query operator|(const Query&, const Query&);
+public:
+    Query(const string&);
+    QueryResult eval(const TextQuery&t) const
+    {
+        return q->eval(t);
+    }
+    string rep() const
+    {
+        return q->rep();
+    }
+    //ostream& operator<<(ostream &os, const Query &query)// not used
+    //{
+    //    return os << query.rep();
+    //}
+   // shared_ptr< vector<string> > get_file();
+protected:
+
+private:
+    Query(shared_ptr<Query_base> query): q(query) {}
+    shared_ptr<Query_base> q;
 };
 
 
@@ -90,22 +105,22 @@ private:
 //===================================================
 class WordQuery:public Query_base
 {
-        friend class Query;
+    friend class Query;
 public:
 
 protected:
 
 private:
-        WordQuery(const string &s):query_word(s) {}//creat function
-        QueryResult eval(const TextQuery &t) const
-        {
-                return t.query(query_word);
-        }
-        string rep() const
-        {
-                return query_word;
-        }
-        string query_word;
+    WordQuery(const string &s):query_word(s) {}//creat function
+    QueryResult eval(const TextQuery &t) const
+    {
+        return t.query(query_word);
+    }
+    string rep() const
+    {
+        return query_word;
+    }
+    string query_word;
 };
 
 inline Query::Query(const string &s):q(new WordQuery(s)){}
@@ -144,13 +159,13 @@ class BinaryQuery: public Query_base
 public:
 
 protected:
-        BinaryQuery(const Query &l, const Query &r, string s): lhs(l), rhs(r), opSym(s) { }
-        string rep() const
-        {
-                return "(" + lhs.rep() + " " + opSym + " " + rhs.rep() + ")";
-        }
-        Query lhs, rhs;
-        string opSym;
+    BinaryQuery(const Query &l, const Query &r, string s): lhs(l), rhs(r), opSym(s) { }
+    string rep() const
+    {
+        return "(" + lhs.rep() + " " + opSym + " " + rhs.rep() + ")";
+    }
+    Query lhs, rhs;
+    string opSym;
 private:
 
 };
@@ -158,35 +173,35 @@ private:
 //-------------------------------AndQuery-----------------------------------------
 class AndQuery: public BinaryQuery
 {
-        friend Query operator &(const Query&, const Query&);
+    friend Query operator &(const Query&, const Query&);
 public:
 
 protected:
 
 private:
-        AndQuery(const Query &left, const Query &right): BinaryQuery(left, right, "&"){ }
-        QueryResult eval(const TextQuery&)const;
+    AndQuery(const Query &left, const Query &right): BinaryQuery(left, right, "&"){ }
+    QueryResult eval(const TextQuery&)const;
 };
 inline Query operator &(const Query &lhs, const Query &rhs)
 {
-        return  shared_ptr<Query_base>( new AndQuery(lhs, rhs) );
+    return  shared_ptr<Query_base>( new AndQuery(lhs, rhs) );
 }
 
 //-------------------------------OrQuery-----------------------------------------
 class OrQuery: public BinaryQuery
 {
-        friend Query operator|(const Query &, const Query &);
+    friend Query operator|(const Query &, const Query &);
 public:
 
 protected:
 
 private:
-        OrQuery(const Query &left, const Query &right): BinaryQuery(left, right, "|"){ }
-        QueryResult eval(const TextQuery &) const;
+    OrQuery(const Query &left, const Query &right): BinaryQuery(left, right, "|"){ }
+    QueryResult eval(const TextQuery &) const;
 };
 inline Query operator |(const Query &lhs, const Query &rhs)
 {
-        return  shared_ptr<Query_base>( new OrQuery(lhs, rhs) );
+    return  shared_ptr<Query_base>( new OrQuery(lhs, rhs) );
 }
 
 
