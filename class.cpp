@@ -52,15 +52,9 @@ QueryResult OrQuery::eval(const TextQuery &text) const
     auto right = rhs.eval(text);
     auto left   = lhs.eval(text);
 
-<<<<<<< HEAD
     auto ret_lines = make_shared< set<line_no> >( left.get_lines()->begin(), left.get_lines()->end() );
 
     ret_lines->insert( right.get_lines()->begin(), right.get_lines()->end() );
-=======
-        auto ret_lines = make_shared< set<line_no> >( left.lines->begin(), left.lines->end() );
-
-        ret_lines->insert( right.lines->begin(), right.lines->end() );
->>>>>>> 042c0b011e3912226f1822a96560d80ad69fa97f
 
     return QueryResult( rep(), ret_lines, left.get_file() );
 }
@@ -70,19 +64,11 @@ QueryResult AndQuery::eval(const TextQuery &text) const
 {
     auto right = rhs.eval(text);//rhs是protected，派生类可以访问
     auto left   = lhs.eval(text);
-<<<<<<< HEAD
+
 
     auto ret_lines = make_shared< set<line_no> >( );//creat memory
     set_intersection( left.get_lines()->begin(), left.get_lines()->end(), right.get_lines()->begin(), right.get_lines()->end(), inserter( *ret_lines, ret_lines->begin() ) );//容器set的函数，求交集
 
-
-=======
-
-    auto ret_lines = make_shared< set<line_no> >( );
-    set_intersection( left.lines->begin(), left.lines->end(), right.lines->begin(), right.lines->end(), inserter( *ret_lines, ret_lines->begin() ) );//容器set的函数，求交集
-
-
->>>>>>> 042c0b011e3912226f1822a96560d80ad69fa97f
     return QueryResult( rep(), ret_lines, left.get_file() );
 }
 
