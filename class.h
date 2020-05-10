@@ -44,6 +44,7 @@ private:
     shared_ptr< vector<string> > file;//保存整个文本，根据lines提取所需的文本
 };
 
+<<<<<<< HEAD
 ostream& printqr(ostream& os, const QueryResult& qr)
 {
     os<<qr.sought<<" occurs "<<qr.lines->size()<<" "<<((qr.lines->size())>1 ? "times" : "time")<<endl;
@@ -52,6 +53,16 @@ ostream& printqr(ostream& os, const QueryResult& qr)
         os<<"\t(line"<<nu+1<<")"<<(*(qr.file))[nu]<<endl;
     }
     return os;
+=======
+ostream& print(ostream& os, const QueryResult& qr)
+{
+        os<<qr.sought<<" occurs "<<qr.lines->size()<<" "<<(qr.lines->size()>1) ? "times" : "time"<<endl;
+        for( auto nu  : *(qr.lines) )
+        {
+                os<<"\t(line"<<nu+1<<")"<<( *(qr.file) )[nu]<<endl;
+        }
+        return os;
+>>>>>>> 042c0b011e3912226f1822a96560d80ad69fa97f
 }
 
 
@@ -65,8 +76,13 @@ protected:
     using line_no = TextQuery::line_no;
     virtual ~Query_base() = default;
 private:
+<<<<<<< HEAD
     virtual QueryResult eval(const TextQuery&) const=0;//调用查询函数
     virtual string rep() const = 0;//返回查询关键词
+=======
+        shared_ptr< vector<string> > file;//整个文本
+        map< string, shared_ptr< set<line_no> > > wm;
+>>>>>>> 042c0b011e3912226f1822a96560d80ad69fa97f
 };
 //-------------------------------Query-----------------------------------------
 
@@ -113,6 +129,7 @@ protected:
 private:
     WordQuery(const string &s):query_word(s) {}//creat function
     QueryResult eval(const TextQuery &t) const
+<<<<<<< HEAD
     {
         return t.query(query_word);
     }
@@ -121,6 +138,16 @@ private:
         return query_word;
     }
     string query_word;
+=======
+	{
+		return t.query(query_word);
+        }
+	string rep() const
+        {
+		return query_word;
+        }
+	string query_word;
+>>>>>>> 042c0b011e3912226f1822a96560d80ad69fa97f
 };
 
 inline Query::Query(const string &s):q(new WordQuery(s)){}
@@ -159,11 +186,19 @@ class BinaryQuery: public Query_base
 public:
 
 protected:
+<<<<<<< HEAD
     BinaryQuery(const Query &l, const Query &r, string s): lhs(l), rhs(r), opSym(s) { }
     string rep() const
     {
         return "(" + lhs.rep() + " " + opSym + " " + rhs.rep() + ")";
     }
+=======
+	BinaryQuery(const Query &l, const Query &r, string s): lhs(l), rhs(r), opSym(s) { }
+	string rep() const
+	{
+		return "(" + lhs.rep() + " " + opSym + " " + rhs.rep() + ")";
+	}
+>>>>>>> 042c0b011e3912226f1822a96560d80ad69fa97f
     Query lhs, rhs;
     string opSym;
 private:
