@@ -50,7 +50,7 @@ ostream& printqr(ostream& os, const QueryResult& qr)
     os<<qr.sought<<" occurs "<<qr.lines->size()<<" "<<((qr.lines->size())>1 ? "times" : "time")<<endl;
     for( auto nu  : *(qr.lines) )
     {
-        os<<"\t(line"<<nu+1<<")"<<(*(qr.file))[nu]<<endl;
+        os<<"\t(line"<<nu+1<<")"<<*((qr.file)->begin()+nu)<<endl;//[] return left can't been changed
     }
     return os;
 }

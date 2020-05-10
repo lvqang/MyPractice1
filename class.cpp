@@ -28,7 +28,7 @@ TextQuery:: TextQuery(ifstream &is): file(new vector<string>)
     }
 }
 
-string st;
+
 QueryResult TextQuery::  query(const string &str) const
 {
     // shared_ptr<set<line_no>> lines = wm[str];//使用下标运算会导致map创建新的成员
