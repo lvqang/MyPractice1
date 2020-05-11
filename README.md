@@ -1,2 +1,3 @@
 # MyPractice1
-practice for C++ learning effect
+C++ Primer practice Page 562
+Note: just learning for myself, not for any other purpose!
